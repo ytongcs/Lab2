@@ -7,8 +7,8 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F)
+```{r setup, include=T}
+knitr::opts_chunk$set(echo = T)
 ```
 
 
@@ -28,7 +28,7 @@ temp <- lab2%>%
   summarise(mean=mean(value),sd=sd(value))
 ```
 ```{r}
-temp$time<- c("base","base","base",
+temp$time<- c("baseline","baseline","baseline",
               "one year", "one year", "one year",
               "two years","two years","two years")
 temp
