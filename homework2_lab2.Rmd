@@ -1,0 +1,90 @@
+---
+title: "homework2"
+author: "Yingtong Lyu"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##Question 3.Write the R code to recreate the graph from the Activity 2 (Problem 4).
+
+###3.1 load the lab2 data
+```{r}
+library(tidyverse)
+lab2<-read.csv("C://Users/ColdSun/Documents/WCM/BDS/lab2.csv")
+```
+###3.2 tidy the data and summarize 
+```{r}
+temp <- lab2%>%
+  gather(indexes=2:10,key=time_category,value=value)%>%
+  separate(time_category,into=c("time","category"),sep = "_") %>%
+  group_by(time,category)%>%
+  summarise(mean=mean(value),sd=sd(value))
+```
+```{r}
+temp$time<- c("base","base","base",
+              "one year", "one year", "one year",
+              "two years","two years","two years")
+temp
+```
+###3.3 Plot 
+```{r}
+ggplot(temp,aes(x=time,y=mean,group=category,col=category))+
+  geom_line(position=position_dodge(0.2))+
+  geom_point(position=position_dodge(0.2))+
+  geom_errorbar(aes(ymin=mean-sd,ymax=mean+sd),width=0.1,
+                position=position_dodge(0.2),size=1)+
+  scale_y_continuous(limits = c(0,100), breaks=seq(0,100,by=25))+
+  labs(y = "Sample mean and standard deviation", x = "Time of report")+
+  theme_bw()+
+  theme(legend.position = c(0.93,0.2),legend.title = element_blank())
+  
+```
+##Question 4.Download two files:
+. coverage.csv - Health Insurance Coverage of the Total Population (2013 - 2016)
+. expenditures.csv - Health Care Expenditures by State of Residence (in millions)
+4.1 Make the data frames "tidy".
+4.2 Merge two data frames: the resulting data frame should contain information about coverage and
+expenditures for years 2013-2016. Please note that file expenditures.csv does not contain years
+2015-2016.
+
+###4.1 load data 
+```{r}
+coverage<-read.csv("C:/Users/ColdSun/Documents/WCM/BDS/coverage.csv", 
+                   skip = 2, header = TRUE,nrows = 52,stringsAsFactors = F)
+expenditures<-read.csv("C:/Users/ColdSun/Documents/WCM/BDS/expenditures.csv",
+                       skip = 2, header = TRUE,nrows = 52,stringsAsFactors = F)
+```
+
+###4.2 tidy coverage data
+```{r}
+tidy_coverage<- coverage%>%
+  gather(indexes= 2:ncol(coverage), key="XYear_Insurance",value="Amount")%>%
+  separate(XYear_Insurance, into = c("XYear","Insurance"),sep = '__')%>%
+  mutate(Year=gsub("X","",XYear))%>%
+  select(Location,Year,Insurance,Amount)
+head(tidy_coverage)
+```
+###4.3 tidy expenditures data
+```{r}
+tidy_expenditures<- expenditures%>%
+  gather(indexes= 2:ncol(expenditures),
+         key="XYear_Total.Health.Spending",value="Total_Spending")%>%
+  separate(XYear_Total.Health.Spending, 
+           into = c("XYear","Total.Health.Spending"),sep = '__')%>%
+  mutate(Year=gsub("X","",XYear))%>%
+  select(Location,Year,Total_Spending)
+head(tidy_expenditures)
+```
+###4.4 merge two data and creat tidy data frame
+```{r}
+tidy<-merge(tidy_coverage, tidy_expenditures, by = c("Location", "Year"), all =TRUE) %>%
+  filter(Year >= 2013 & Year <= 2016)
+tidy
+```
