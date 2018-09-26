@@ -85,6 +85,7 @@ head(tidy_expenditures)
 ###4.4 merge two data and creat tidy data frame
 ```{r}
 tidy<-merge(tidy_coverage, tidy_expenditures, by = c("Location", "Year"), all =TRUE) %>%
-  filter(Year >= 2013 & Year <= 2016)
+  filter(Year >= 2013 & Year <= 2016)%>%
+  arrange(Year)
 tidy
 ```
